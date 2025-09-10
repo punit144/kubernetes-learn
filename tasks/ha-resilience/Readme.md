@@ -1,5 +1,3 @@
----
-
 # 📂 Task: HA & Resilience with Kubernetes
 
 **Path:** `tasks/ha-resilience/`
