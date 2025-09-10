@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Microservices Frontend</title>
+</head>
+<body>
+  <h1>Frontend talking to API 🎯</h1>
+  <p id="api-response"></p>
+  <script>
+    fetch("/api/hello")
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("api-response").innerText = data.message;
+      })
+      .catch(err => {
+        document.getElementById("api-response").innerText = "API not reachable ❌";
+      });
+  </script>
+</body>
+</html>
