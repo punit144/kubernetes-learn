@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monolith
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: monolith-deployment
+  namespace: monolith
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: monolith
+  template:
+    metadata:
+      labels:
+        app: monolith
+    spec:
+      containers:
+      - name: monolith
+        image: monolith-app:1.0
+        ports:
+        - containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: monolith-service
+  namespace: monolith
+spec:
+  selector:
+    app: monolith
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 3000
+  type: ClusterIP

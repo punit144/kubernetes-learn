@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Monolith App</title>
+</head>
+<body>
+  <h1>Welcome to Monolith App 🚀</h1>
+  <p id="api-response"></p>
+  <script>
+    fetch("/api/hello")
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("api-response").innerText = data.message;
+      });
+  </script>
+</body>
+</html>
