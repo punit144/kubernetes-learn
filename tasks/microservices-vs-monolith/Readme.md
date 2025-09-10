@@ -39,12 +39,3 @@
   * `api-service.microservices-demo.svc.cluster.local` → shows how microservices discover each other inside the cluster.
 
 ---
-
-## 🧩 Next Steps (optional if you want to go deeper)
-
-* Add a **DB microservice** (Mongo/Postgres) and update the API to fetch real data.
-* Add an **Ingress** so you can access monolith at `/monolith` and microservices at `/micro` on the same URL.
-* Try **scaling API only** in microservices and observe difference vs monolith.
-* Measure **update blast radius** (e.g., update frontend container image only).
-
----
