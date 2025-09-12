@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-producer
+  namespace: kafka
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: kafka-producer
+  template:
+    metadata:
+      labels:
+        app: kafka-producer
+    spec:
+      containers:
+        - name: producer
+          image: python:3.11-slim
+          command: ["/bin/sh", "-c"]
+          args:
+            - pip install kafka-python && python -u producer.py
+          volumeMounts:
+            - name: app-code
+              mountPath: /app
+          workingDir: /app
+      volumes:
+        - name: app-code
+          configMap:
+            name: producer-code
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: producer-code
+  namespace: kafka
+data:
+  producer.py: |
+    from kafka import KafkaProducer
+    import time, json
+
+    producer = KafkaProducer(bootstrap_servers='my-cluster-kafka-bootstrap.kafka:9092')
+
+    while True:
+        event = {"order_id": 1, "status": "CREATED"}
+        producer.send('test-topic', json.dumps(event).encode('utf-8'))
+        print("Produced:", event)
+        time.sleep(3)

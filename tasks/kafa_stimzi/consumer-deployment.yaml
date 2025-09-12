@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-consumer
+  namespace: kafka
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: kafka-consumer
+  template:
+    metadata:
+      labels:
+        app: kafka-consumer
+    spec:
+      containers:
+        - name: consumer
+          image: python:3.11-slim
+          command: ["/bin/sh", "-c"]
+          args:
+            - pip install kafka-python && python -u consumer.py
+          volumeMounts:
+            - name: app-code
+              mountPath: /app
+          workingDir: /app
+      volumes:
+        - name: app-code
+          configMap:
+            name: consumer-code
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: consumer-code
+  namespace: kafka
+data:
+  consumer.py: |
+    from kafka import KafkaConsumer
+    import json
+
+    consumer = KafkaConsumer(
+        'test-topic',
+        bootstrap_servers='my-cluster-kafka-bootstrap.kafka:9092',
+        auto_offset_reset='earliest',
+        enable_auto_commit=True,
+        group_id='my-group'
+    )
+
+    for message in consumer:
+        print("Consumed:", json.loads(message.value.decode()))
