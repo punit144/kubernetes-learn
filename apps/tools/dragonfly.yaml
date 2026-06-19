@@ -13,11 +13,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://dragonflydb.github.io/dragonfly-operator/helm/charts'
-    chart: dragonfly-operator
-    targetRevision: 'v1.1.x'
-    helm:
-      releaseName: dragonfly-operator
+    repoURL: 'https://github.com/dragonflydb/dragonfly-operator.git'
+    targetRevision: 'v1.1.2'
+    path: 'config/default'
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: dragonfly-system

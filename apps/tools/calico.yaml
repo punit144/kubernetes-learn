@@ -44,31 +44,6 @@ spec:
             type: HostLocal
           calicoNetwork:
             bgp: Disabled
-          # Reduce resource footprint for local dev
-          typhaDeployment:
-            spec:
-              template:
-                spec:
-                  containers:
-                    - name: calico-typha
-                      resources:
-                        requests:
-                          cpu: 10m
-                          memory: 64Mi
-                        limits:
-                          memory: 128Mi
-          nodeDaemonSet:
-            spec:
-              template:
-                spec:
-                  containers:
-                    - name: calico-node
-                      resources:
-                        requests:
-                          cpu: 50m
-                          memory: 64Mi
-                        limits:
-                          memory: 128Mi
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: tigera-operator
@@ -78,4 +53,11 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - ServerSideApply=true
+  # Ignore status drift on the Installation CRD written back by the operator.
+  ignoreDifferences:
+    - group: operator.tigera.io
+      kind: Installation
+      jsonPointers:
+        - /status
       - ServerSideApply=true   # required — Tigera CRDs use server-side apply

@@ -23,6 +23,9 @@ spec:
         grafana:
           enabled: true
           adminPassword: "admin"   # change via sealed-secret in production
+          service:
+            type: NodePort
+            nodePort: 30300
           resources:
             requests:
               cpu: 100m
@@ -32,6 +35,9 @@ spec:
 
         # ── Prometheus ───────────────────────────────────────────────────────
         prometheus:
+          service:
+            type: NodePort
+            nodePort: 30090
           prometheusSpec:
             retention: 7d
             resources:
