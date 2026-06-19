@@ -16,6 +16,9 @@ spec:
     repoURL: 'https://github.com/dragonflydb/dragonfly-operator.git'
     targetRevision: 'v1.1.2'
     path: 'config/default'
+    kustomize:
+      images:
+        - 'gcr.io/kubebuilder/kube-rbac-proxy=quay.io/brancz/kube-rbac-proxy:v0.18.2'
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: dragonfly-system
