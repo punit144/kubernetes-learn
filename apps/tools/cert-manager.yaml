@@ -1,0 +1,36 @@
+# cert-manager — Wave 0: must be ready before Istio and OPA Gatekeeper.
+# Provides TLS certificate automation (Let's Encrypt, self-signed, etc.).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'https://charts.jetstack.io'
+    chart: cert-manager
+    targetRevision: 'v1.15.x'
+    helm:
+      releaseName: cert-manager
+      values: |
+        installCRDs: true
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+          limits:
+            memory: 128Mi
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: cert-manager
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

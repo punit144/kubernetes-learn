@@ -1,0 +1,81 @@
+# Calico — Wave 0: network policy enforcement via the Tigera operator.
+#
+# ⚠️  COLIMA NOTE: Colima provisions its own CNI (flannel/host-local) at cluster
+# creation time, so Calico must NOT be configured as the primary dataplane CNI.
+# The Tigera operator is installed here for NetworkPolicy enforcement only
+# (calico-node runs in policy-only mode). This lets you write Calico
+# NetworkPolicy / GlobalNetworkPolicy resources without replacing Colima's CNI.
+#
+# To enable full CNI mode on a bare-metal or cloud cluster, set
+#   installation.cni.type: Calico
+# and remove the calicoNetwork.nodeAddressAutodetectionV4 workaround below.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: calico
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'https://docs.tigera.io/calico/charts'
+    chart: tigera-operator
+    targetRevision: 'v3.28.x'
+    helm:
+      releaseName: tigera-operator
+      values: |
+        # Tigera operator resource limits (the operator pod itself)
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            memory: 256Mi
+
+        # Installation CR — controls how calico-node is deployed.
+        installation:
+          enabled: true
+          # Policy-only mode: Calico manages NetworkPolicies but delegates
+          # packet forwarding to Colima's existing CNI (flannel).
+          cni:
+            type: HostLocal
+          calicoNetwork:
+            bgp: Disabled
+          # Reduce resource footprint for local dev
+          typhaDeployment:
+            spec:
+              template:
+                spec:
+                  containers:
+                    - name: calico-typha
+                      resources:
+                        requests:
+                          cpu: 10m
+                          memory: 64Mi
+                        limits:
+                          memory: 128Mi
+          nodeDaemonSet:
+            spec:
+              template:
+                spec:
+                  containers:
+                    - name: calico-node
+                      resources:
+                        requests:
+                          cpu: 50m
+                          memory: 64Mi
+                        limits:
+                          memory: 128Mi
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: tigera-operator
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true   # required — Tigera CRDs use server-side apply

@@ -1,0 +1,42 @@
+# istiod — Wave 3: the Istio control plane.
+# Depends on istio-base (wave 2). Resources tuned for 8 GB Colima budget.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: istiod
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'https://istio-release.storage.googleapis.com/charts'
+    chart: istiod
+    targetRevision: '1.22.x'
+    helm:
+      releaseName: istiod
+      values: |
+        pilot:
+          replicaCount: 1
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              memory: 512Mi
+        # Disable auto-injection cluster-wide; opt in per-namespace instead.
+        meshConfig:
+          defaultConfig:
+            proxyMetadata: {}
+          enableTracing: false
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: istio-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

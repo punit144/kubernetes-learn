@@ -1,0 +1,24 @@
+# Root "App of Apps" — applied once by bootstrap.sh.
+# ArgoCD will discover and sync every Application manifest under apps/.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root-app
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/punit144/kubernetes-learn.git'
+    targetRevision: main
+    path: apps
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

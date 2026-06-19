@@ -1,0 +1,29 @@
+# infrastructure.yaml — App of Apps for core infrastructure tools.
+# This Application tells ArgoCD to recurse into apps/tools/ and deploy
+# every Application manifest it finds there (cert-manager, Istio, KEDA, etc.).
+#
+# Sync wave 1 ensures infrastructure deploys before monitoring (wave 3).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: infrastructure
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/punit144/kubernetes-learn.git'
+    targetRevision: main
+    path: apps/tools
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

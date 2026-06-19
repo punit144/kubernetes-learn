@@ -1,0 +1,64 @@
+# monitoring.yaml — kube-prometheus-stack (Prometheus + Grafana + Alertmanager).
+# Sync wave 3 ensures this deploys after core infrastructure (wave 0-2).
+# Resources are tuned for Colima's 8 GB RAM budget.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'https://prometheus-community.github.io/helm-charts'
+    chart: kube-prometheus-stack
+    targetRevision: '58.x'
+    helm:
+      releaseName: kube-prometheus-stack
+      values: |
+        # ── Grafana ──────────────────────────────────────────────────────────
+        grafana:
+          enabled: true
+          adminPassword: "admin"   # change via sealed-secret in production
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              memory: 512Mi
+
+        # ── Prometheus ───────────────────────────────────────────────────────
+        prometheus:
+          prometheusSpec:
+            retention: 7d
+            resources:
+              requests:
+                cpu: 200m
+                memory: 512Mi
+              limits:
+                memory: 1Gi
+
+        # ── Alertmanager — disabled for local dev to save RAM ─────────────
+        alertmanager:
+          enabled: false
+
+        # ── Node Exporter ────────────────────────────────────────────────────
+        nodeExporter:
+          enabled: true
+
+        # ── kube-state-metrics ───────────────────────────────────────────────
+        kubeStateMetrics:
+          enabled: true
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true   # required for large CRD bundles

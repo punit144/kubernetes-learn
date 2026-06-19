@@ -1,0 +1,29 @@
+# Dragonfly — Wave 4: Redis-compatible in-memory data store.
+# Operator-based install. Much lighter than Redis + Sentinel.
+# Add a Dragonfly CR under clusters/colima/overlays/ to spin up instances.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dragonfly-operator
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'https://dragonflydb.github.io/dragonfly-operator/helm/charts'
+    chart: dragonfly-operator
+    targetRevision: 'v1.1.x'
+    helm:
+      releaseName: dragonfly-operator
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: dragonfly-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

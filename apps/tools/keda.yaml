@@ -1,0 +1,45 @@
+# KEDA — Wave 2: event-driven autoscaler.
+# Installs the KEDA operator and CRDs. Works well on Colima.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: keda
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'https://kedacore.github.io/charts'
+    chart: keda
+    targetRevision: '2.14.x'
+    helm:
+      releaseName: keda
+      values: |
+        operator:
+          replicaCount: 1
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              memory: 256Mi
+        metricsServer:
+          replicaCount: 1
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              memory: 256Mi
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: keda
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
