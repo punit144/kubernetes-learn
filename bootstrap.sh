@@ -43,6 +43,24 @@ kubectl apply -n "${ARGOCD_NAMESPACE}" \
   --server-side --force-conflicts \
   -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
+log "Configuring ArgoCD compare customizations for operator-managed CRD/webhook drift..."
+kubectl -n "${ARGOCD_NAMESPACE}" patch configmap argocd-cm --type merge -p '{"data":{
+  "resource.customizations.ignoreDifferences.apiextensions.k8s.io_CustomResourceDefinition":"jsonPointers:\n- /status\n- /metadata/annotations",
+  "resource.customizations.ignoreDifferences.admissionregistration.k8s.io_MutatingWebhookConfiguration":"jqPathExpressions:\n- .webhooks[]?.clientConfig.caBundle",
+  "resource.customizations.ignoreDifferences.admissionregistration.k8s.io_ValidatingWebhookConfiguration":"jqPathExpressions:\n- .webhooks[]?.clientConfig.caBundle"
+}}'
+
+log "Exposing ArgoCD via NodePort (HTTP:30080, HTTPS:30443)..."
+kubectl patch svc argocd-server -n "${ARGOCD_NAMESPACE}" -p '{"spec":{"type":"NodePort","ports":[{"name":"http","port":80,"targetPort":8080,"nodePort":30080},{"name":"https","port":443,"targetPort":8080,"nodePort":30443}]}}'
+
+log "Ensuring ArgoCD HTTPS mode is enabled..."
+kubectl patch configmap argocd-cmd-params-cm -n "${ARGOCD_NAMESPACE}" --type merge -p '{"data":{"server.insecure":"false"}}'
+
+log "Restarting ArgoCD components to apply config changes..."
+kubectl rollout restart deployment/argocd-server -n "${ARGOCD_NAMESPACE}"
+kubectl rollout restart deployment/argocd-repo-server -n "${ARGOCD_NAMESPACE}"
+kubectl rollout restart statefulset/argocd-application-controller -n "${ARGOCD_NAMESPACE}"
+
 log "Waiting for ArgoCD server to be ready (this may take a few minutes)..."
 kubectl rollout status deployment/argocd-server \
   -n "${ARGOCD_NAMESPACE}" \
@@ -60,8 +78,10 @@ log ""
 log "========================================================"
 log " Bootstrap complete!"
 log "========================================================"
-log " ArgoCD UI:      kubectl port-forward svc/argocd-server -n argocd 8080:443"
-log "                 then open https://localhost:8080"
+log " ArgoCD UI:      https://localhost:30443"
+log " ArgoCD UI HTTP: http://localhost:30080"
+log " Grafana UI:     http://localhost:30300"
+log " Prometheus UI:  http://localhost:30090"
 log " ArgoCD login:   username=admin  password=${ARGOCD_PASSWORD}"
 log ""
 log " ArgoCD is now syncing all tools from your Git repo."
