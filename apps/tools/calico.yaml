@@ -60,4 +60,3 @@ spec:
       kind: Installation
       jsonPointers:
         - /status
-      - ServerSideApply=true   # required — Tigera CRDs use server-side apply
