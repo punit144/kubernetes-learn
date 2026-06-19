@@ -1,5 +1,0 @@
-apiVersion: policy/v1
-kind: Eviction
-metadata:
-  name: nginx-deployment-77778dc6b9-628mc
-  namespace: ha-resilience

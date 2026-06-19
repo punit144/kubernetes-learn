@@ -1,0 +1,48 @@
+# istio-ingressgateway — Wave 3: Istio Ingress Gateway for local UI routing
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: istio-ingressgateway
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'https://istio-release.storage.googleapis.com/charts'
+    chart: gateway
+    targetRevision: '1.22.x'
+    helm:
+      releaseName: istio-ingressgateway
+      values: |
+        replicaCount: 1
+        service:
+          type: NodePort
+          ports:
+            - port: 80
+              targetPort: 8080
+              protocol: TCP
+              name: http2
+              nodePort: 30080
+            - port: 443
+              targetPort: 8443
+              protocol: TCP
+              name: https
+              nodePort: 30443
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+          limits:
+            memory: 256Mi
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: istio-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

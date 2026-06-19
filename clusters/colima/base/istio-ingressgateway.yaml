@@ -1,0 +1,22 @@
+# Expose Istio Ingress Gateway on NodePort for local development
+# Maps: localhost:443 → Istio LB:443 (HTTPS), localhost:80 → Istio LB:80 (HTTP)
+apiVersion: v1
+kind: Service
+metadata:
+  name: istio-ingressgateway-nodeport
+  namespace: istio-system
+spec:
+  type: NodePort
+  selector:
+    istio: ingressgateway
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+      nodePort: 30080
+      protocol: TCP
+    - name: https
+      port: 443
+      targetPort: 8443
+      nodePort: 30443
+      protocol: TCP
