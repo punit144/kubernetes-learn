@@ -35,15 +35,11 @@ spec:
           limits:
             memory: 256Mi
 
-        # Installation CR — controls how calico-node is deployed.
+        # Let Tigera operator use default CNI (Calico) settings.
+        # On Colima the operator will install Calico in eBPF/nftables mode
+        # which is fully compatible with the existing k3s networking.
         installation:
           enabled: true
-          # Policy-only mode: Calico manages NetworkPolicies but delegates
-          # packet forwarding to Colima's existing CNI (flannel).
-          cni:
-            type: HostLocal
-          calicoNetwork:
-            bgp: Disabled
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: tigera-operator
