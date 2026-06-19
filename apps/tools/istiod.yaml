@@ -47,13 +47,16 @@ spec:
       kind: MutatingWebhookConfiguration
       jqPathExpressions:
         - .webhooks[]?.clientConfig.caBundle
+        - .webhooks
     - group: admissionregistration.k8s.io
       kind: ValidatingWebhookConfiguration
       jqPathExpressions:
         - .webhooks[]?.clientConfig.caBundle
+        - .webhooks
     - group: apps
       kind: Deployment
       name: istiod
       namespace: istio-system
       jsonPointers:
         - /spec/template/metadata/annotations
+        - /spec/template/spec/containers
