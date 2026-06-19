@@ -56,3 +56,9 @@ spec:
       kind: Installation
       jsonPointers:
         - /status
+    - group: apiextensions.k8s.io
+      kind: CustomResourceDefinition
+      name: "*.crd.projectcalico.org"
+      jsonPointers:
+        - /status
+        - /metadata/annotations
