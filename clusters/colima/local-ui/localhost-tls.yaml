@@ -1,15 +1,12 @@
-# Certificate for localhost development with self-signed cert
-# This is why you see the red warning - browsers don't trust self-signed certs
-# In production, use real certificates from Let's Encrypt via cert-manager
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: localhost-tls
-  namespace: istio-system
+  namespace: default
 spec:
   secretName: localhost-tls-secret
-  duration: 8760h  # 1 year
-  renewBefore: 720h  # 30 days
+  duration: 8760h
+  renewBefore: 720h
   commonName: localhost
   dnsNames:
     - localhost
@@ -19,11 +16,10 @@ spec:
     name: selfsigned-issuer
     kind: Issuer
 ---
-# Self-signed issuer for localhost development
 apiVersion: cert-manager.io/v1
 kind: Issuer
 metadata:
   name: selfsigned-issuer
-  namespace: istio-system
+  namespace: default
 spec:
   selfSigned: {}

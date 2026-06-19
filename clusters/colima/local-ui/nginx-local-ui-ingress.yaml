@@ -1,0 +1,144 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: local-ui-ingress
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: local-ui-ingress
+  template:
+    metadata:
+      labels:
+        app: local-ui-ingress
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - containerPort: 80
+          name: http
+        - containerPort: 443
+          name: https
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        volumeMounts:
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d/local-ui.conf
+          subPath: local-ui.conf
+          readOnly: true
+        - name: tls-secret
+          mountPath: /etc/nginx/tls
+          readOnly: true
+      volumes:
+      - name: nginx-config
+        configMap:
+          name: nginx-local-ui-config
+      - name: tls-secret
+        secret:
+          secretName: localhost-tls-secret
+          optional: true
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: local-ui-ingress
+  namespace: default
+spec:
+  type: NodePort
+  selector:
+    app: local-ui-ingress
+  ports:
+  - port: 80
+    targetPort: 80
+    nodePort: 31081
+    name: http
+  - port: 443
+    targetPort: 443
+    nodePort: 31444
+    name: https
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-local-ui-config
+  namespace: default
+data:
+  local-ui.conf: |
+    upstream argocd {
+      server argocd-server.argocd.svc.cluster.local:443;
+    }
+
+    upstream grafana {
+      server kube-prometheus-stack-grafana.monitoring.svc.cluster.local:80;
+    }
+
+    upstream prometheus {
+      server kube-prometheus-stack-prometheus.monitoring.svc.cluster.local:9090;
+    }
+
+    server {
+      listen 80;
+      server_name argocd.localhost grafana.localhost prometheus.localhost;
+      return 308 https://$host:31444$request_uri;
+    }
+
+    server {
+      listen 443 ssl;
+      server_name argocd.localhost;
+      ssl_certificate /etc/nginx/tls/tls.crt;
+      ssl_certificate_key /etc/nginx/tls/tls.key;
+      ssl_protocols TLSv1.2 TLSv1.3;
+
+      location / {
+        proxy_pass https://argocd;
+        proxy_set_header Host argocd-server.argocd.svc.cluster.local;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_ssl_verify off;
+      }
+    }
+
+    server {
+      listen 443 ssl;
+      server_name grafana.localhost;
+      ssl_certificate /etc/nginx/tls/tls.crt;
+      ssl_certificate_key /etc/nginx/tls/tls.key;
+      ssl_protocols TLSv1.2 TLSv1.3;
+
+      location / {
+        proxy_pass http://grafana;
+        proxy_set_header Host kube-prometheus-stack-grafana.monitoring.svc.cluster.local;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+      }
+    }
+
+    server {
+      listen 443 ssl;
+      server_name prometheus.localhost;
+      ssl_certificate /etc/nginx/tls/tls.crt;
+      ssl_certificate_key /etc/nginx/tls/tls.key;
+      ssl_protocols TLSv1.2 TLSv1.3;
+
+      location / {
+        proxy_pass http://prometheus;
+        proxy_set_header Host kube-prometheus-stack-prometheus.monitoring.svc.cluster.local;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+      }
+    }

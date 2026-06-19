@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: local-ui-letsencrypt
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "7"
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/punit144/kubernetes-learn.git
+    targetRevision: main
+    path: clusters/colima/local-ui/letsencrypt
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cert-manager
+  # Manual sync on purpose. Enable only after setting real domain and DNS credentials.
+  syncPolicy: {}
