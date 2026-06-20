@@ -22,7 +22,7 @@ fi
 
 SERVICE="${1:-argocd}"
 DOMAIN="${SERVICE}.localhost"
-PORT="32443"
+PORT="${LOCAL_UI_PORT:-32443}"
 
 case "$SERVICE" in
   argocd|grafana|prometheus)
@@ -32,6 +32,11 @@ case "$SERVICE" in
     echo
     echo "📝 To open in browser:"
     echo "   https://${DOMAIN}:${PORT}"
+    if [[ "$PORT" == "32443" ]]; then
+      echo
+      echo "💡 Want no port in the URL?"
+      echo "   Run: sudo ./local-ui-port-redirect.sh start"
+    fi
     ;;
   help|--help|-h)
     cat << 'EOF'
@@ -54,6 +59,10 @@ Access URLs (add to /etc/hosts):
   https://grafana.localhost:32443      ✅ Green lock
   https://prometheus.localhost:32443   ✅ Green lock
 
+No-port option on macOS:
+  sudo ./local-ui-port-redirect.sh start
+  LOCAL_UI_PORT=443 ./access-local-ui.sh argocd
+
 Browser Setup:
   1. Add to /etc/hosts:
      127.0.0.1 argocd.localhost grafana.localhost prometheus.localhost
@@ -62,6 +71,10 @@ Browser Setup:
      https://argocd.localhost:32443
      https://grafana.localhost:32443
      https://prometheus.localhost:32443
+
+  3. Or redirect local 443/80 to the NodePorts and use plain URLs:
+     sudo ./local-ui-port-redirect.sh start
+     https://argocd.localhost
 
 This configuration is GitOps-managed by ArgoCD application: local-ui
 EOF
