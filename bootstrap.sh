@@ -7,28 +7,56 @@ set -euo pipefail
 
 COLIMA_CPU="${COLIMA_CPU:-4}"
 COLIMA_MEMORY="${COLIMA_MEMORY:-8}"
+COLIMA_K8S_VERSION="${COLIMA_K8S_VERSION:-v1.29.6+k3s1}"
+K8S_API_TIMEOUT_SECONDS="${K8S_API_TIMEOUT_SECONDS:-300}"
 ARGOCD_NAMESPACE="argocd"
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 log() { echo "[bootstrap] $*"; }
 
 # ── 1. Start Colima with Kubernetes ──────────────────────────────────────────
-log "Starting Colima (cpu=${COLIMA_CPU}, memory=${COLIMA_MEMORY}GB)..."
-if colima status 2>/dev/null | grep -q "Running"; then
-  log "Colima is already running — skipping start."
+if [[ -n "${COLIMA_K8S_VERSION}" ]]; then
+  log "Starting Colima (cpu=${COLIMA_CPU}, memory=${COLIMA_MEMORY}GB, kubernetes=${COLIMA_K8S_VERSION})..."
 else
-  colima start \
-    --kubernetes \
-    --cpu "${COLIMA_CPU}" \
-    --memory "${COLIMA_MEMORY}" \
-    --disk 60 \
-    --runtime containerd \
-    --kubernetes-version 1.29.4
+  log "Starting Colima (cpu=${COLIMA_CPU}, memory=${COLIMA_MEMORY}GB, kubernetes=colima-default)..."
+fi
+
+colima_start_cmd=(
+  colima start
+  --kubernetes
+  --cpu "${COLIMA_CPU}"
+  --memory "${COLIMA_MEMORY}"
+  --disk 60
+  --runtime containerd
+)
+
+if [[ -n "${COLIMA_K8S_VERSION}" ]]; then
+  colima_start_cmd+=(--kubernetes-version "${COLIMA_K8S_VERSION}")
+fi
+
+if colima status 2>/dev/null | grep -q "Running"; then
+  if kubectl cluster-info &>/dev/null; then
+    log "Colima is already running and Kubernetes API is reachable — skipping start."
+  else
+    log "Colima is running but Kubernetes API is unreachable; restarting Colima with Kubernetes enabled..."
+    colima stop
+    "${colima_start_cmd[@]}"
+  fi
+else
+  "${colima_start_cmd[@]}"
 fi
 
 # ── 2. Verify kubectl connectivity ───────────────────────────────────────────
 log "Waiting for Kubernetes API to be ready..."
+start_time=$(date +%s)
 until kubectl cluster-info &>/dev/null; do
+  now=$(date +%s)
+  if (( now - start_time >= K8S_API_TIMEOUT_SECONDS )); then
+    echo ""
+    log "Timed out waiting for Kubernetes API after ${K8S_API_TIMEOUT_SECONDS}s."
+    log "Try: colima status && kubectl config current-context && kubectl cluster-info"
+    exit 1
+  fi
   echo -n "."; sleep 3
 done
 echo ""
