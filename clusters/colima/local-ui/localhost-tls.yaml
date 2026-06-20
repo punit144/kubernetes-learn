@@ -1,25 +1,33 @@
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: localhost-tls
-  namespace: default
-spec:
-  secretName: localhost-tls-secret
-  duration: 8760h
-  renewBefore: 720h
-  commonName: localhost
-  dnsNames:
-    - localhost
-    - "*.localhost"
-    - 127.0.0.1
-  issuerRef:
-    name: selfsigned-issuer
-    kind: Issuer
 ---
-apiVersion: cert-manager.io/v1
-kind: Issuer
+# Local HTTPS certificate via mkcert (trusted local CA)
+# The certificate secret is provisioned by: kubectl create secret tls localhost-mkcert --cert=... --key=... -n istio-system
+# This secret is referenced by the Istio Gateway resource for HTTPS termination.
+---
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
 metadata:
-  name: selfsigned-issuer
-  namespace: default
+  name: local-ui-gateway
+  namespace: istio-system
 spec:
-  selfSigned: {}
+  selector:
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: localhost-mkcert
+    hosts:
+    - "argocd.localhost"
+    - "grafana.localhost"
+    - "prometheus.localhost"
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "argocd.localhost"
+    - "grafana.localhost"
+    - "prometheus.localhost"

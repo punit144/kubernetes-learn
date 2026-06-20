@@ -1,0 +1,78 @@
+---
+# VirtualService for ArgoCD
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: argocd-server-vs
+  namespace: argocd
+spec:
+  hosts:
+  - "argocd.localhost"
+  gateways:
+  - istio-system/local-ui-gateway
+  http:
+  - route:
+    - destination:
+        host: argocd-server
+        port:
+          number: 443
+        subset: default
+      weight: 100
+    timeout: 30s
+    retries:
+      attempts: 3
+      perTryTimeout: 10s
+---
+# DestinationRule for ArgoCD with TLS passthrough
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: argocd-server-dr
+  namespace: argocd
+spec:
+  host: argocd-server
+  trafficPolicy:
+    tls:
+      mode: SIMPLE
+  subsets:
+  - name: default
+---
+# VirtualService for Grafana
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: grafana-vs
+  namespace: monitoring
+spec:
+  hosts:
+  - "grafana.localhost"
+  gateways:
+  - istio-system/local-ui-gateway
+  http:
+  - route:
+    - destination:
+        host: grafana
+        port:
+          number: 80
+      weight: 100
+    timeout: 30s
+---
+# VirtualService for Prometheus
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: prometheus-vs
+  namespace: monitoring
+spec:
+  hosts:
+  - "prometheus.localhost"
+  gateways:
+  - istio-system/local-ui-gateway
+  http:
+  - route:
+    - destination:
+        host: prometheus-operated
+        port:
+          number: 9090
+      weight: 100
+    timeout: 30s
