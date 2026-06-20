@@ -11,6 +11,16 @@ spec:
   gateways:
   - istio-system/local-ui-gateway
   http:
+  - match:
+    - uri:
+        prefix: /api/v1/stream/
+    route:
+    - destination:
+        host: argocd-server.argocd.svc.cluster.local
+        port:
+          number: 80
+      weight: 100
+    timeout: 24h
   - route:
     - destination:
         host: argocd-server.argocd.svc.cluster.local
@@ -18,9 +28,6 @@ spec:
           number: 80
       weight: 100
     timeout: 30s
-    retries:
-      attempts: 3
-      perTryTimeout: 10s
 ---
 # VirtualService for Grafana
 apiVersion: networking.istio.io/v1beta1
