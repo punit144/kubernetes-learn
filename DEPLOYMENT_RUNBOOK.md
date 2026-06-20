@@ -58,11 +58,11 @@ The argo-rollouts.yaml application should sync automatically if ArgoCD is config
 
 ```bash
 # Check ArgoCD application status
-argocd app list | grep rollouts
+argocd app list --grpc-web | grep rollouts
 
 # Manually sync if needed
-argocd app sync argo-rollouts
-argocd app wait argo-rollouts
+argocd app sync argo-rollouts --grpc-web
+argocd app wait argo-rollouts --grpc-web
 
 # Verify controller is ready
 kubectl get pods -n argo-rollouts
@@ -77,11 +77,11 @@ Expected: Argo Rollouts controller pod is `Running`, Rollout CRD exists.
 
 ```bash
 # Check ArgoCD application status
-argocd app list | grep rollouts-demo
+argocd app list --grpc-web | grep rollouts-demo
 
 # If not synced, trigger manual sync
-argocd app sync rollouts-demo
-argocd app wait rollouts-demo
+argocd app sync rollouts-demo --grpc-web
+argocd app wait rollouts-demo --grpc-web
 
 # Verify resources created
 kubectl get rollouts -n rollouts-demo
@@ -197,19 +197,19 @@ kubectl get secret github-token -n github-actions
 
 ```bash
 # Check ARC controller status
-argocd app list | grep arc-controller
+argocd app list --grpc-web | grep arc-controller
 
 # Manually sync if needed
-argocd app sync arc-controller
-argocd app wait arc-controller
+argocd app sync arc-controller --grpc-web
+argocd app wait arc-controller --grpc-web
 
 # Verify ARC controller deployment
 kubectl get deployment -n gha-runner-system
 kubectl get pods -n gha-runner-system
 
 # Deploy runners
-argocd app sync arc-runners
-argocd app wait arc-runners
+argocd app sync arc-runners --grpc-web
+argocd app wait arc-runners --grpc-web
 
 # Verify runner scale set
 kubectl get runnerscalesets -n github-actions
@@ -270,7 +270,7 @@ Expected: HTTPS responses with valid content (ignore self-signed cert warnings w
 
 ```bash
 # List all applications and their sync status
-argocd app list --refresh
+argocd app list --refresh --grpc-web
 
 # Expected sync wave order:
 # Wave 0: cert-manager
@@ -279,7 +279,7 @@ argocd app list --refresh
 # Wave 6: local-ui (gateway/virtualservices)
 # Wave 7: rollouts-demo
 
-argocd app list | sort -k3 -t/ -V
+argocd app list --grpc-web | sort -k3 -t/ -V
 ```
 
 ### 8.2 Trigger a test GitHub Actions workflow
