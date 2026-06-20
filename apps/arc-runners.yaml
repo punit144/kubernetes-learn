@@ -14,9 +14,35 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/punit144/kubernetes-learn.git
-    targetRevision: main
-    path: clusters/colima/arc-runners
+    repoURL: https://github.com/actions/actions-runner-controller.git
+    targetRevision: master
+    path: charts/gha-runner-scale-set
+    helm:
+      releaseName: kubernetes-learn-runners
+      values: |
+        githubConfigUrl: https://github.com/punit144/kubernetes-learn
+        githubConfigSecret: github-token
+        minRunners: 1
+        maxRunners: 3
+        runnerGroup: default
+        controllerServiceAccount:
+          namespace: gha-runner-system
+          name: arc-controller-gha-rs-controller
+        template:
+          spec:
+            containers:
+              - name: runner
+                image: ghcr.io/actions/actions-runner:latest
+                env:
+                  - name: RUNNER_ALLOW_RUNASROOT
+                    value: "true"
+                resources:
+                  requests:
+                    cpu: 500m
+                    memory: 512Mi
+                  limits:
+                    cpu: 1000m
+                    memory: 1Gi
   destination:
     server: https://kubernetes.default.svc
     namespace: github-actions
