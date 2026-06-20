@@ -4,18 +4,3 @@ kind: Kustomization
 resources:
   - localhost-tls.yaml
   - virtual-services.yaml
-  # nginx-local-ui-ingress.yaml - replaced by Istio gateway
-
-# Disable Let's Encrypt (Istio gateway uses mkcert secret directly)
-patchesJson6902:
-  - target:
-      group: argoproj.io
-      version: v1alpha1
-      kind: Application
-      name: local-ui-letsencrypt
-      namespace: argocd
-    patch: |-
-      - op: replace
-        path: /spec/syncPolicy/syncOptions
-        value:
-          - Prune=false
