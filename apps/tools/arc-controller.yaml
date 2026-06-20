@@ -13,9 +13,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'oci://ghcr.io/actions/actions-runner-controller-charts'
-    chart: gha-runner-scale-set-controller
-    targetRevision: '0.8.3'
+    repoURL: 'https://github.com/actions/actions-runner-controller.git'
+    targetRevision: 'master'
+    path: charts/gha-runner-scale-set-controller
     helm:
       releaseName: arc-controller
       values: |
