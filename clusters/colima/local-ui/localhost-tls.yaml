@@ -23,6 +23,8 @@ spec:
     - "argocd.localhost"
     - "grafana.localhost"
     - "prometheus.localhost"
+    - "rollouts-demo-canary.localhost"
+    - "rollouts-demo-blue-green.localhost"
   - port:
       number: 80
       name: http
@@ -31,3 +33,5 @@ spec:
     - "argocd.localhost"
     - "grafana.localhost"
     - "prometheus.localhost"
+    - "rollouts-demo-canary.localhost"
+    - "rollouts-demo-blue-green.localhost"

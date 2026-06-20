@@ -1,0 +1,77 @@
+# Canary Rollout — Progressive traffic shift (0% → 50% → 100%) to new version.
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: rollouts-demo-canary
+  namespace: rollouts-demo
+spec:
+  replicas: 3
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: rollouts-demo-canary
+  template:
+    metadata:
+      labels:
+        app: rollouts-demo-canary
+    spec:
+      containers:
+      - name: rollouts-demo
+        image: argoproj/rollouts-demo:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: http
+        - containerPort: 8888
+          name: metrics
+        env:
+        - name: PORT
+          value: "8080"
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+  strategy:
+    canary:
+      steps:
+      - setWeight: 0
+      - pause: {}
+      - setWeight: 25
+      - pause:
+          duration: 5m
+      - setWeight: 50
+      - pause:
+          duration: 5m
+      - setWeight: 75
+      - pause:
+          duration: 5m
+      canaryService: rollouts-demo-canary-canary
+      stableService: rollouts-demo-canary-stable
+      trafficRouting:
+        istio:
+          virtualServices:
+          - name: rollouts-demo-canary-vs
+  analysis:
+    templates:
+    - name: success-rate
+    args:
+      metrics:
+      - name: success-rate
+        query: |
+          sum(rate(http_requests_total{job="rollouts-demo-canary",status=~"2.."}[2m])) /
+          sum(rate(http_requests_total{job="rollouts-demo-canary"}[2m]))

@@ -1,0 +1,29 @@
+# rollouts-demo.yaml — ArgoCD Application for Argo Rollouts canary and blue-green demos.
+# Wave 7: deploys after infrastructure (waves 0-3) and local-ui (wave 6).
+# Demonstrates progressive delivery with Prometheus metrics integration and Istio traffic routing.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: rollouts-demo
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "7"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/punit144/kubernetes-learn.git
+    targetRevision: main
+    path: apps/rollouts-demo
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: rollouts-demo
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+    syncWave: 7

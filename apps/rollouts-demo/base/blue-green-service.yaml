@@ -1,0 +1,39 @@
+# Blue-Green Services — Active targets current prod; preview targets candidate version.
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rollouts-demo-blue-green-active
+  namespace: rollouts-demo
+  labels:
+    app: rollouts-demo-blue-green
+spec:
+  type: ClusterIP
+  selector:
+    app: rollouts-demo-blue-green
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+  - name: metrics
+    port: 8888
+    targetPort: 8888
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rollouts-demo-blue-green-preview
+  namespace: rollouts-demo
+  labels:
+    app: rollouts-demo-blue-green
+spec:
+  type: ClusterIP
+  selector:
+    app: rollouts-demo-blue-green
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+  - name: metrics
+    port: 8888
+    targetPort: 8888

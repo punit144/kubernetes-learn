@@ -1,0 +1,63 @@
+# Blue-Green Rollout — Immediate full cutover (0% → 100%) with automatic rollback.
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: rollouts-demo-blue-green
+  namespace: rollouts-demo
+spec:
+  replicas: 3
+  revisionHistoryLimit: 5
+  selector:
+    matchLabels:
+      app: rollouts-demo-blue-green
+  template:
+    metadata:
+      labels:
+        app: rollouts-demo-blue-green
+    spec:
+      containers:
+      - name: rollouts-demo
+        image: argoproj/rollouts-demo:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+          name: http
+        - containerPort: 8888
+          name: metrics
+        env:
+        - name: PORT
+          value: "8080"
+        resources:
+          requests:
+            cpu: 50m
+            memory: 128Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+  strategy:
+    blueGreen:
+      activeService: rollouts-demo-blue-green-active
+      previewService: rollouts-demo-blue-green-preview
+      autoPromotionEnabled: false
+      autoPromotionSeconds: 300
+  analysis:
+    templates:
+    - name: error-rate
+    args:
+      metrics:
+      - name: error-rate
+        query: |
+          sum(rate(http_requests_total{job="rollouts-demo-blue-green",status=~"5.."}[2m])) /
+          sum(rate(http_requests_total{job="rollouts-demo-blue-green"}[2m]))

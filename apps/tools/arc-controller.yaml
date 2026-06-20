@@ -1,0 +1,40 @@
+# actions-runner-controller — Wave 3: GitHub Actions Runner Controller.
+# Enables self-hosted runners for GitHub Actions workflows in the cluster.
+# Uses gha-runner-scale-set mode (modern, autoscaling-capable).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: arc-controller
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/actions/actions-runner-controller'
+    chart: gha-runner-scale-set-controller
+    targetRevision: '0.8.x'
+    helm:
+      releaseName: arc-controller
+      values: |
+        githubConfigUrl: https://github.com
+        githubConfigSecret: github-token
+        replicaCount: 1
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            memory: 512Mi
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: gha-runner-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

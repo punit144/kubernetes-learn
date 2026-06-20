@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: rollouts-demo
+commonLabels:
+  app.kubernetes.io/part-of: rollouts-demo
+resources:
+  - canary-rollout.yaml
+  - canary-service.yaml
+  - blue-green-rollout.yaml
+  - blue-green-service.yaml
+  - canary-analysis.yaml
+  - blue-green-analysis.yaml
+  - servicemonitor.yaml
+  - keda-scaledobjects.yaml

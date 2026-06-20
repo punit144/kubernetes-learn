@@ -1,0 +1,22 @@
+# AnalysisTemplate for Canary — Success rate checks before proceeding to next weight step.
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: success-rate
+  namespace: rollouts-demo
+spec:
+  args:
+    metrics:
+    - name: success-rate
+      query: |
+        sum(rate(http_requests_total{job="rollouts-demo-canary",status=~"2.."}[2m])) /
+        sum(rate(http_requests_total{job="rollouts-demo-canary"}[2m]))
+  metrics:
+  - name: success-rate
+    interval: 30s
+    successCriteria: result > 0.95
+    failureLimit: 2
+    provider:
+      prometheus:
+        address: http://kube-prometheus-stack-prometheus.monitoring:9090
+        query: "{{args.metrics.0.query}}"

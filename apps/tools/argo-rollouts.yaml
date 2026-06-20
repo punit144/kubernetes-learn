@@ -1,0 +1,41 @@
+# argo-rollouts — Wave 2: Progressive delivery platform for canary/blue-green deployments.
+# Provides Rollout CRD and controllers. Deploys after cert-manager prerequisite.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argo-rollouts
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'https://argoproj.github.io/argo-helm'
+    chart: argo-rollouts
+    targetRevision: '2.37.x'
+    helm:
+      releaseName: argo-rollouts
+      values: |
+        controller:
+          replicas: 1
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 256Mi
+        metrics:
+          enabled: true
+          port: 8090
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: argo-rollouts
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

@@ -1,0 +1,22 @@
+# AnalysisTemplate for Blue-Green — Error rate validation before automatic promotion.
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: error-rate
+  namespace: rollouts-demo
+spec:
+  args:
+    metrics:
+    - name: error-rate
+      query: |
+        sum(rate(http_requests_total{job="rollouts-demo-blue-green",status=~"5.."}[2m])) /
+        sum(rate(http_requests_total{job="rollouts-demo-blue-green"}[2m]))
+  metrics:
+  - name: error-rate
+    interval: 30s
+    successCriteria: result < 0.05
+    failureLimit: 2
+    provider:
+      prometheus:
+        address: http://kube-prometheus-stack-prometheus.monitoring:9090
+        query: "{{args.metrics.0.query}}"

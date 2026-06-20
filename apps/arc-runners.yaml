@@ -1,0 +1,29 @@
+# arc-runners.yaml — ArgoCD Application for GitHub Actions Runner Controller (ARC) scale sets.
+# Wave 5: deploys after infrastructure but before demo apps.
+# Runners are auto-registered to punit144/kubernetes-learn repository.
+# GitHub token must be manually created as a secret (not committed to git).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: arc-runners
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/punit144/kubernetes-learn.git
+    targetRevision: main
+    path: clusters/colima/overlays/local
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: github-actions
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

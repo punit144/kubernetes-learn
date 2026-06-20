@@ -1,0 +1,7 @@
+# Namespace for GitHub Actions runners with Istio injection disabled (runners need public internet access).
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: github-actions
+  labels:
+    app.kubernetes.io/name: github-actions

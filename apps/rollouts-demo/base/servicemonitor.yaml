@@ -1,0 +1,33 @@
+# ServiceMonitor for Canary Demo — Prometheus auto-discovery of metrics endpoint.
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: rollouts-demo-canary
+  namespace: rollouts-demo
+  labels:
+    app: rollouts-demo-canary
+spec:
+  selector:
+    matchLabels:
+      app: rollouts-demo-canary
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
+---
+# ServiceMonitor for Blue-Green Demo — Prometheus auto-discovery of metrics endpoint.
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: rollouts-demo-blue-green
+  namespace: rollouts-demo
+  labels:
+    app: rollouts-demo-blue-green
+spec:
+  selector:
+    matchLabels:
+      app: rollouts-demo-blue-green
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics

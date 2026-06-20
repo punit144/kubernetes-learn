@@ -68,3 +68,43 @@ spec:
           number: 9090
       weight: 100
     timeout: 30s
+---
+# VirtualService for Rollouts Demo — Canary
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: rollouts-demo-canary-vs
+  namespace: rollouts-demo
+spec:
+  hosts:
+  - "rollouts-demo-canary.localhost"
+  gateways:
+  - istio-system/local-ui-gateway
+  http:
+  - route:
+    - destination:
+        host: rollouts-demo-canary-stable.rollouts-demo.svc.cluster.local
+        port:
+          number: 8080
+      weight: 100
+    timeout: 30s
+---
+# VirtualService for Rollouts Demo — Blue-Green
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: rollouts-demo-blue-green-vs
+  namespace: rollouts-demo
+spec:
+  hosts:
+  - "rollouts-demo-blue-green.localhost"
+  gateways:
+  - istio-system/local-ui-gateway
+  http:
+  - route:
+    - destination:
+        host: rollouts-demo-blue-green-active.rollouts-demo.svc.cluster.local
+        port:
+          number: 8080
+      weight: 100
+    timeout: 30s
