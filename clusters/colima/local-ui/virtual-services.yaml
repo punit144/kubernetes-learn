@@ -13,29 +13,14 @@ spec:
   http:
   - route:
     - destination:
-        host: argocd-server
+        host: argocd-server.argocd.svc.cluster.local
         port:
-          number: 443
-        subset: default
+          number: 80
       weight: 100
     timeout: 30s
     retries:
       attempts: 3
       perTryTimeout: 10s
----
-# DestinationRule for ArgoCD with TLS passthrough
-apiVersion: networking.istio.io/v1beta1
-kind: DestinationRule
-metadata:
-  name: argocd-server-dr
-  namespace: argocd
-spec:
-  host: argocd-server
-  trafficPolicy:
-    tls:
-      mode: SIMPLE
-  subsets:
-  - name: default
 ---
 # VirtualService for Grafana
 apiVersion: networking.istio.io/v1beta1
@@ -51,7 +36,7 @@ spec:
   http:
   - route:
     - destination:
-        host: grafana
+        host: kube-prometheus-stack-grafana.monitoring.svc.cluster.local
         port:
           number: 80
       weight: 100
@@ -71,7 +56,7 @@ spec:
   http:
   - route:
     - destination:
-        host: prometheus-operated
+        host: kube-prometheus-stack-prometheus.monitoring.svc.cluster.local
         port:
           number: 9090
       weight: 100

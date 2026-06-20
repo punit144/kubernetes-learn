@@ -13,30 +13,32 @@ spec:
   source:
     repoURL: 'https://istio-release.storage.googleapis.com/charts'
     chart: gateway
-    targetRevision: '1.22.x'
+    targetRevision: '1.22.8'
     helm:
       releaseName: istio-ingressgateway
+      skipSchemaValidation: true
       values: |
-        replicaCount: 1
-        service:
-          type: NodePort
-          ports:
-            - port: 80
-              targetPort: 8080
-              protocol: TCP
-              name: http2
-              nodePort: 30080
-            - port: 443
-              targetPort: 8443
-              protocol: TCP
-              name: https
-              nodePort: 30443
-        resources:
-          requests:
-            cpu: 100m
-            memory: 128Mi
-          limits:
-            memory: 256Mi
+        defaults:
+          replicaCount: 1
+          service:
+            type: NodePort
+            ports:
+              - port: 80
+                targetPort: 80
+                protocol: TCP
+                name: http2
+                nodePort: 32080
+              - port: 443
+                targetPort: 443
+                protocol: TCP
+                name: https
+                nodePort: 32443
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              memory: 256Mi
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: istio-system
