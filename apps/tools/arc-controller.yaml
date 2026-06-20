@@ -13,14 +13,12 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: 'https://actions-runner-controller.github.io/actions-runner-controller'
+    repoURL: 'oci://ghcr.io/actions/actions-runner-controller-charts'
     chart: gha-runner-scale-set-controller
-    targetRevision: '0.8.x'
+    targetRevision: '0.8.3'
     helm:
       releaseName: arc-controller
       values: |
-        githubConfigUrl: https://github.com
-        githubConfigSecret: github-token
         replicaCount: 1
         resources:
           requests:
