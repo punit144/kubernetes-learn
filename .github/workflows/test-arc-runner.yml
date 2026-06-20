@@ -11,9 +11,7 @@ on:
 jobs:
   runner-smoke-test:
     name: ARC Runner Smoke Test
-    runs-on:
-      - self-hosted
-      - kubernetes-learn-runners
+    runs-on: kubernetes-learn-runners
     timeout-minutes: 15
 
     steps:
