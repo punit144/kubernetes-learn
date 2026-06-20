@@ -81,8 +81,8 @@ kubectl -n "${ARGOCD_NAMESPACE}" patch configmap argocd-cm --type merge -p '{"da
 log "Exposing ArgoCD via NodePort (HTTP:30080, HTTPS:30443)..."
 kubectl patch svc argocd-server -n "${ARGOCD_NAMESPACE}" -p '{"spec":{"type":"NodePort","ports":[{"name":"http","port":80,"targetPort":8080,"nodePort":30080},{"name":"https","port":443,"targetPort":8080,"nodePort":30443}]}}'
 
-log "Ensuring ArgoCD HTTPS mode is enabled..."
-kubectl patch configmap argocd-cmd-params-cm -n "${ARGOCD_NAMESPACE}" --type merge -p '{"data":{"server.insecure":"false"}}'
+log "Disabling ArgoCD internal TLS (TLS is terminated at Istio gateway)..."
+kubectl patch configmap argocd-cmd-params-cm -n "${ARGOCD_NAMESPACE}" --type merge -p '{"data":{"server.insecure":"true"}}'
 
 log "Restarting ArgoCD components to apply config changes..."
 kubectl rollout restart deployment/argocd-server -n "${ARGOCD_NAMESPACE}"
