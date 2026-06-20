@@ -1,0 +1,69 @@
+---
+# ConfigMap with NodePort access instructions (GitOps-managed documentation)
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: local-ui-access-guide
+  namespace: istio-system
+  labels:
+    app.kubernetes.io/name: local-ui
+    app.kubernetes.io/component: documentation
+data:
+  NODEPORT_ACCESS.md: |
+    # Local UI NodePort Access (GitOps-Managed)
+    
+    ## Quick Start - Use These URLs
+    
+    Your services are accessible via NodePort with mkcert HTTPS (green lock ✅):
+    
+    ### ArgoCD
+    - **HTTPS**: https://argocd.localhost:32443
+    - **Command**: curl -k --cacert ~/.local/share/mkcert/rootCA.pem https://argocd.localhost:32443/
+    
+    ### Grafana
+    - **HTTPS**: https://grafana.localhost:32443
+    - **Command**: curl -k --cacert ~/.local/share/mkcert/rootCA.pem https://grafana.localhost:32443/
+    
+    ### Prometheus
+    - **HTTPS**: https://prometheus.localhost:32443
+    - **Command**: curl -k --cacert ~/.local/share/mkcert/rootCA.pem https://prometheus.localhost:32443/
+    
+    ## Port Mapping (Istio IngressGateway)
+    - HTTP:  127.0.0.1:32080  → Istio Pod:8080
+    - HTTPS: 127.0.0.1:32443  → Istio Pod:8443
+    
+    ## Certificate Details
+    - **Issuer**: mkcert local CA
+    - **Domains**: argocd.localhost, grafana.localhost, prometheus.localhost, 127.0.0.1, localhost
+    - **Valid Until**: 2028-09-20
+    - **Trust**: System-trusted (installed via `mkcert -install`)
+    
+    ## For /etc/hosts
+    ```
+    127.0.0.1 argocd.localhost grafana.localhost prometheus.localhost
+    ```
+    
+    ## Browser Access with Green Lock
+    1. Ensure mkcert CA is installed: `mkcert -install`
+    2. Add domains to `/etc/hosts` (see above)
+    3. Open in browser: https://argocd.localhost:32443 ✅ (green lock)
+    
+    ## Verify Setup
+    ```bash
+    # Check Istio gateway service
+    kubectl get svc -n istio-system istio-ingressgateway
+    
+    # Check routing
+    kubectl get gateway -n istio-system local-ui-gateway
+    kubectl get vs -A | grep -E "argocd|grafana|prometheus"
+    
+    # Verify TLS secret
+    kubectl get secret -n istio-system localhost-mkcert -o jsonpath='{.data.tls\.crt}' | base64 -d | openssl x509 -text -noout
+    ```
+    
+    ## This Configuration is GitOps-Managed
+    - Stored in: `clusters/colima/local-ui/`
+    - Managed by: ArgoCD application `local-ui`
+    - Resources: Gateway, VirtualServices, TLS Secret
+    - No manual configuration needed after bootstrap.sh
+

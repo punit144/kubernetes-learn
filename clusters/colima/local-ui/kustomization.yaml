@@ -4,3 +4,4 @@ kind: Kustomization
 resources:
   - localhost-tls.yaml
   - virtual-services.yaml
+  - nodeport-service.yaml
