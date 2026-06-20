@@ -180,7 +180,7 @@ Expected: Pod count increases as request rate exceeds KEDA threshold (100 req/se
 kubectl create namespace github-actions --dry-run=client -o yaml | kubectl apply -f -
 
 kubectl create secret generic github-token \
-  --from-literal=github_token=ghp_YourActualTokenHereNotTheOneInChat \
+  --from-literal=github_token=******** \
   -n github-actions
 
 # Verify secret exists (but DO NOT output its contents in production)
