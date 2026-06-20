@@ -7,11 +7,6 @@ kind: Kustomization
 bases:
   - ../../base
 
-resources:
-  - github-actions-namespace.yaml
-  - arc-runners.yaml
-  - arc-networkpolicy.yaml
-
 # Example patch — uncomment and edit to override a resource limit:
 # patches:
 #   - target:

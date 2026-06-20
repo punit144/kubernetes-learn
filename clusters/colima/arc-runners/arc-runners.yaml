@@ -1,0 +1,37 @@
+# RunnerScaleSet for gha-runner-scale-set (Actions Runner Controller).
+# This resource bridges GitHub Actions workflows to Kubernetes pods.
+# The github-token secret must be created manually: kubectl create secret generic github-token --from-literal=github_token=<PAT> -n github-actions
+apiVersion: actions.github.com/v1alpha1
+kind: RunnerScaleSet
+metadata:
+  name: kubernetes-learn-runners
+  namespace: github-actions
+spec:
+  githubConfigUrl: https://github.com/punit144/kubernetes-learn
+  githubConfigSecret:
+    name: github-token
+    key: github_token
+  minRunners: 1
+  maxRunners: 3
+  runnerGroup: default
+  template:
+    spec:
+      containers:
+      - name: runner
+        image: ghcr.io/actions/actions-runner:latest
+        env:
+        - name: RUNNER_ALLOW_RUNASROOT
+          value: "true"
+        resources:
+          requests:
+            cpu: 500m
+            memory: 512Mi
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+  scaleDownDelay: 300
+  scaleUpTriggers: []

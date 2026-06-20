@@ -1,0 +1,32 @@
+# Optional: NetworkPolicy to restrict runner egress (advanced networking).
+# Comment out if causing connectivity issues.
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: github-runners-egress
+  namespace: github-actions
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: actions-runner
+  policyTypes:
+  - Egress
+  egress:
+  # Allow pod-to-pod communication within namespace
+  - to:
+    - podSelector: {}
+  # Allow DNS
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: UDP
+      port: 53
+  # Allow HTTPS to external services
+  - to:
+    - namespaceSelector: {}
+    ports:
+    - protocol: TCP
+      port: 443
+    - protocol: TCP
+      port: 80

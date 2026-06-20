@@ -16,7 +16,7 @@ spec:
   source:
     repoURL: https://github.com/punit144/kubernetes-learn.git
     targetRevision: main
-    path: clusters/colima/overlays/local
+    path: clusters/colima/arc-runners
   destination:
     server: https://kubernetes.default.svc
     namespace: github-actions
