@@ -25,7 +25,7 @@ DOMAIN="${SERVICE}.localhost"
 PORT="${LOCAL_UI_PORT:-32443}"
 
 case "$SERVICE" in
-  argocd|grafana|prometheus)
+  argocd|grafana|prometheus|rollouts-demo-canary|rollouts-demo-blue-green)
     echo "🔒 Accessing $DOMAIN:$PORT with green HTTPS lock"
     echo
     curl -k --cacert "$MKCERT_CA" "https://${DOMAIN}:${PORT}/" -I
@@ -48,16 +48,22 @@ Services:
   argocd      - ArgoCD UI (default)
   grafana     - Grafana dashboards
   prometheus  - Prometheus metrics
+  rollouts-demo-canary      - Argo Rollouts canary demo
+  rollouts-demo-blue-green  - Argo Rollouts blue-green demo
 
 Examples:
   ./access-local-ui.sh argocd
   ./access-local-ui.sh grafana
   ./access-local-ui.sh prometheus
+  ./access-local-ui.sh rollouts-demo-canary
+  ./access-local-ui.sh rollouts-demo-blue-green
 
 Access URLs (add to /etc/hosts):
   https://argocd.localhost:32443       ✅ Green lock
   https://grafana.localhost:32443      ✅ Green lock
   https://prometheus.localhost:32443   ✅ Green lock
+  https://rollouts-demo-canary.localhost:32443      ✅ Green lock
+  https://rollouts-demo-blue-green.localhost:32443  ✅ Green lock
 
 No-port option on macOS:
   sudo ./local-ui-port-redirect.sh start
@@ -65,7 +71,8 @@ No-port option on macOS:
 
 Browser Setup:
   1. Add to /etc/hosts:
-     127.0.0.1 argocd.localhost grafana.localhost prometheus.localhost
+      127.0.0.1 argocd.localhost grafana.localhost prometheus.localhost
+      127.0.0.1 rollouts-demo-canary.localhost rollouts-demo-blue-green.localhost
 
   2. Open in browser with green HTTPS lock:
      https://argocd.localhost:32443

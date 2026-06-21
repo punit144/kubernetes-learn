@@ -15,7 +15,7 @@ spec:
   source:
     repoURL: https://github.com/punit144/kubernetes-learn.git
     targetRevision: main
-    path: apps/rollouts-demo
+    path: apps/rollouts-demo/overlays/local
   destination:
     server: https://kubernetes.default.svc
     namespace: rollouts-demo

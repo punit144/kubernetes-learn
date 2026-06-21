@@ -49,7 +49,8 @@ create_local_ui_tls_secret() {
     -cert-file "${tmp_dir}/localhost.pem" \
     -key-file "${tmp_dir}/localhost-key.pem" \
     localhost "*.localhost" 127.0.0.1 \
-    argocd.localhost grafana.localhost prometheus.localhost >/dev/null
+    argocd.localhost grafana.localhost prometheus.localhost \
+    rollouts-demo-canary.localhost rollouts-demo-blue-green.localhost >/dev/null
 
   kubectl create secret tls "${LOCAL_UI_TLS_SECRET_NAME}" \
     --namespace istio-system \
