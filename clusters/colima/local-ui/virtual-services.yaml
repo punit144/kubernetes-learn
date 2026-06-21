@@ -81,12 +81,18 @@ spec:
   gateways:
   - istio-system/local-ui-gateway
   http:
-  - route:
+  - name: primary
+    route:
     - destination:
         host: rollouts-demo-canary-stable.rollouts-demo.svc.cluster.local
         port:
           number: 8080
       weight: 100
+    - destination:
+        host: rollouts-demo-canary-canary.rollouts-demo.svc.cluster.local
+        port:
+          number: 8080
+      weight: 0
     timeout: 30s
 ---
 # VirtualService for Rollouts Demo — Blue-Green
