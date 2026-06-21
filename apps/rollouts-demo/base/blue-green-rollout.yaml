@@ -10,10 +10,12 @@ spec:
   selector:
     matchLabels:
       app: rollouts-demo-blue-green
+      app.kubernetes.io/part-of: rollouts-demo
   template:
     metadata:
       labels:
         app: rollouts-demo-blue-green
+        app.kubernetes.io/part-of: rollouts-demo
     spec:
       containers:
       - name: rollouts-demo

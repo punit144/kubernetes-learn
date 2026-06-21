@@ -10,10 +10,12 @@ spec:
   selector:
     matchLabels:
       app: rollouts-demo-canary
+      app.kubernetes.io/part-of: rollouts-demo
   template:
     metadata:
       labels:
         app: rollouts-demo-canary
+        app.kubernetes.io/part-of: rollouts-demo
     spec:
       containers:
       - name: rollouts-demo
