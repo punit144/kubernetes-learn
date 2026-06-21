@@ -52,12 +52,3 @@ spec:
       previewService: rollouts-demo-blue-green-preview
       autoPromotionEnabled: false
       autoPromotionSeconds: 300
-  analysis:
-    templates:
-    - name: error-rate
-    args:
-      metrics:
-      - name: error-rate
-        query: |
-          sum(rate(http_requests_total{job="rollouts-demo-blue-green",status=~"5.."}[2m])) /
-          sum(rate(http_requests_total{job="rollouts-demo-blue-green"}[2m]))

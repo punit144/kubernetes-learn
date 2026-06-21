@@ -66,12 +66,3 @@ spec:
         istio:
           virtualServices:
           - name: rollouts-demo-canary-vs
-  analysis:
-    templates:
-    - name: success-rate
-    args:
-      metrics:
-      - name: success-rate
-        query: |
-          sum(rate(http_requests_total{job="rollouts-demo-canary",status=~"2.."}[2m])) /
-          sum(rate(http_requests_total{job="rollouts-demo-canary"}[2m]))

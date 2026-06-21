@@ -6,6 +6,8 @@ metadata:
   namespace: rollouts-demo
 spec:
   scaleTargetRef:
+    apiVersion: argoproj.io/v1alpha1
+    kind: Rollout
     name: rollouts-demo-canary
   minReplicaCount: 2
   maxReplicaCount: 5
@@ -27,6 +29,8 @@ metadata:
   namespace: rollouts-demo
 spec:
   scaleTargetRef:
+    apiVersion: argoproj.io/v1alpha1
+    kind: Rollout
     name: rollouts-demo-blue-green
   minReplicaCount: 2
   maxReplicaCount: 5
