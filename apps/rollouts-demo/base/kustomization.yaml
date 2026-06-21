@@ -6,6 +6,7 @@ commonLabels:
 resources:
   - canary-rollout.yaml
   - canary-service.yaml
+  - nodeport-services.yaml
   - blue-green-rollout.yaml
   - blue-green-service.yaml
   - canary-analysis.yaml

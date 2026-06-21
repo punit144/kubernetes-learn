@@ -1,0 +1,35 @@
+---
+# Direct NodePort access for Canary demo
+apiVersion: v1
+kind: Service
+metadata:
+  name: rollouts-demo-canary-nodeport
+  namespace: rollouts-demo
+spec:
+  type: NodePort
+  selector:
+    app: rollouts-demo-canary
+    app.kubernetes.io/part-of: rollouts-demo
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+    nodePort: 32082
+
+---
+# Direct NodePort access for Blue-Green demo
+apiVersion: v1
+kind: Service
+metadata:
+  name: rollouts-demo-blue-green-nodeport
+  namespace: rollouts-demo
+spec:
+  type: NodePort
+  selector:
+    app: rollouts-demo-blue-green
+    app.kubernetes.io/part-of: rollouts-demo
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+    nodePort: 32083
