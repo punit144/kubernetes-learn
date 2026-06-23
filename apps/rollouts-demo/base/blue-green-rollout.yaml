@@ -17,6 +17,22 @@ spec:
         app: rollouts-demo-blue-green
         app.kubernetes.io/part-of: rollouts-demo
     spec:
+      initContainers:
+      - name: wait-for-dragonfly
+        image: redis:7-alpine
+        command:
+        - sh
+        - -c
+        - |
+          until redis-cli -h "${DRAGONFLY_HOST}" -p "${DRAGONFLY_PORT}" ping; do
+            echo "waiting for dragonfly";
+            sleep 2;
+          done
+        env:
+        - name: DRAGONFLY_HOST
+          value: rollouts-dragonfly
+        - name: DRAGONFLY_PORT
+          value: "6379"
       containers:
       - name: rollouts-demo
         image: argoproj/rollouts-demo:latest
@@ -29,6 +45,20 @@ spec:
         env:
         - name: PORT
           value: "8080"
+        - name: DRAGONFLY_HOST
+          value: rollouts-dragonfly
+        - name: DRAGONFLY_PORT
+          value: "6379"
+        - name: DRAGONFLY_URL
+          value: redis://rollouts-dragonfly:6379
+        - name: STATE_STORE
+          value: dragonfly
+        - name: DRAGONFLY_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: rollouts-dragonfly-auth
+              key: password
+              optional: true
         resources:
           requests:
             cpu: 50m

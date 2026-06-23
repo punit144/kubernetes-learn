@@ -1,0 +1,26 @@
+# rollouts-demo staging environment.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: rollouts-demo-staging
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "7"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/punit144/kubernetes-learn.git
+    targetRevision: main
+    path: apps/rollouts-demo/overlays/staging
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: rollouts-demo-staging
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

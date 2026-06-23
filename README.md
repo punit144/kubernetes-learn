@@ -2,6 +2,34 @@
 
 GitOps-first Kubernetes learning repo using ArgoCD App of Apps.
 
+## Rollouts Demo With Dragonfly (Stateful)
+
+The rollouts demo now includes a GitOps-managed Dragonfly cache and startup
+dependency checks:
+
+- Local app: [apps/rollouts-demo.yaml](apps/rollouts-demo.yaml)
+- Staging app: [apps/rollouts-demo-staging.yaml](apps/rollouts-demo-staging.yaml)
+- Prod-like app: [apps/rollouts-demo-prod.yaml](apps/rollouts-demo-prod.yaml)
+
+Dragonfly base and policy:
+
+- [apps/rollouts-demo/base/dragonfly.yaml](apps/rollouts-demo/base/dragonfly.yaml)
+- [apps/rollouts-demo/base/dragonfly-networkpolicy.yaml](apps/rollouts-demo/base/dragonfly-networkpolicy.yaml)
+
+Environment overlays:
+
+- Local: [apps/rollouts-demo/overlays/local](apps/rollouts-demo/overlays/local)
+- Staging: [apps/rollouts-demo/overlays/staging](apps/rollouts-demo/overlays/staging)
+- Prod-like: [apps/rollouts-demo/overlays/prod](apps/rollouts-demo/overlays/prod)
+
+Notes:
+
+- Staging and prod overlays set higher replicas/resources/storage and auth.
+- Placeholder secrets are included for bootstrap convenience and must be
+	replaced with your secret-management flow (External Secrets / SOPS /
+	Sealed Secrets) before real production usage.
+- Root app discovery picks up the new Argo Applications automatically.
+
 ## Local UI Access (GitOps)
 
 Local HTTP/HTTPS routing is managed by ArgoCD via:

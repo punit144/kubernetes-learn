@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-rollouts-demo-to-dragonfly
+  namespace: rollouts-demo
+  labels:
+    app.kubernetes.io/part-of: rollouts-demo
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: rollouts-dragonfly
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app.kubernetes.io/part-of: rollouts-demo
+    ports:
+    - protocol: TCP
+      port: 6379

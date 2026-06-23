@@ -1,0 +1,47 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: rollouts-demo-prod
+resources:
+  - ../../base
+  - namespace.yaml
+  - dragonfly-auth-secret.yaml
+patches:
+  - target:
+      group: dragonflydb.io
+      version: v1alpha1
+      kind: Dragonfly
+      name: rollouts-dragonfly
+    patch: |-
+      - op: add
+        path: /spec/authentication
+        value:
+          passwordFromSecret:
+            name: rollouts-dragonfly-auth
+            key: password
+      - op: replace
+        path: /spec/replicas
+        value: 3
+      - op: replace
+        path: /spec/resources
+        value:
+          requests:
+            cpu: "1"
+            memory: 2Gi
+          limits:
+            cpu: "4"
+            memory: 8Gi
+      - op: replace
+        path: /spec/snapshot/cron
+        value: "*/5 * * * *"
+      - op: replace
+        path: /spec/snapshot/persistentVolumeClaimSpec/resources/requests/storage
+        value: 50Gi
+      - op: add
+        path: /spec/topologySpreadConstraints
+        value:
+          - maxSkew: 1
+            topologyKey: kubernetes.io/hostname
+            whenUnsatisfiable: DoNotSchedule
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/name: rollouts-dragonfly

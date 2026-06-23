@@ -1,0 +1,31 @@
+# Dragonfly cache for rollouts-demo. Base keeps conservative defaults,
+# while environment overlays (local/staging/prod) tune replicas/auth/storage.
+apiVersion: dragonflydb.io/v1alpha1
+kind: Dragonfly
+metadata:
+  name: rollouts-dragonfly
+  namespace: rollouts-demo
+  labels:
+    app.kubernetes.io/name: rollouts-dragonfly
+    app.kubernetes.io/component: cache
+    app.kubernetes.io/part-of: rollouts-demo
+spec:
+  replicas: 1
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+  serviceSpec:
+    type: ClusterIP
+  snapshot:
+    cron: "*/15 * * * *"
+    dir: /data
+    persistentVolumeClaimSpec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 2Gi
