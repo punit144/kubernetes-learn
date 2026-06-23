@@ -20,16 +20,16 @@ patches:
             key: password
       - op: replace
         path: /spec/replicas
-        value: 3
+        value: 2
       - op: replace
         path: /spec/resources
         value:
           requests:
-            cpu: "1"
-            memory: 2Gi
+            cpu: 500m
+            memory: 1Gi
           limits:
-            cpu: "4"
-            memory: 8Gi
+            cpu: "2"
+            memory: 4Gi
       - op: replace
         path: /spec/snapshot/cron
         value: "*/5 * * * *"
@@ -41,7 +41,7 @@ patches:
         value:
           - maxSkew: 1
             topologyKey: kubernetes.io/hostname
-            whenUnsatisfiable: DoNotSchedule
+            whenUnsatisfiable: ScheduleAnyway
             labelSelector:
               matchLabels:
                 app.kubernetes.io/name: rollouts-dragonfly
