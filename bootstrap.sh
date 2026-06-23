@@ -150,6 +150,15 @@ create_local_ui_tls_secret
 ARGOCD_PASSWORD=$(kubectl -n argocd get secret argocd-initial-admin-secret \
   -o jsonpath="{.data.password}" | base64 --decode)
 
+GRAFANA_USER="admin"
+GRAFANA_PASSWORD="admin"
+if kubectl get secret -n monitoring kube-prometheus-stack-grafana &>/dev/null; then
+  GRAFANA_USER=$(kubectl -n monitoring get secret kube-prometheus-stack-grafana \
+    -o jsonpath="{.data.admin-user}" | base64 --decode)
+  GRAFANA_PASSWORD=$(kubectl -n monitoring get secret kube-prometheus-stack-grafana \
+    -o jsonpath="{.data.admin-password}" | base64 --decode)
+fi
+
 log ""
 log "========================================================"
 log " Bootstrap complete!"
@@ -163,7 +172,7 @@ log "    ✓ Optional no-port macOS redirect: sudo ./local-ui-port-redirect.sh s
 log ""
 log " 🔑 DEFAULT CREDENTIALS"
 log "    ✓ ArgoCD:   admin / ${ARGOCD_PASSWORD}"
-log "    ✓ Grafana:  admin / admin"
+log "    ✓ Grafana:  ${GRAFANA_USER} / ${GRAFANA_PASSWORD}"
 log ""
 log " 💡 DIRECT ACCESS (if proxy is unavailable)"
 log "    ✓ ArgoCD UI:      https://localhost:30443"
