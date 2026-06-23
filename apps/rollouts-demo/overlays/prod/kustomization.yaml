@@ -45,3 +45,33 @@ patches:
             labelSelector:
               matchLabels:
                 app.kubernetes.io/name: rollouts-dragonfly
+  - target:
+      group: ""
+      version: v1
+      kind: Service
+      name: rollouts-demo-canary-nodeport
+    patch: |-
+      - op: replace
+        path: /spec/type
+        value: ClusterIP
+      - op: remove
+        path: /spec/ports/0/nodePort
+  - target:
+      group: ""
+      version: v1
+      kind: Service
+      name: rollouts-demo-blue-green-nodeport
+    patch: |-
+      - op: replace
+        path: /spec/type
+        value: ClusterIP
+      - op: remove
+        path: /spec/ports/0/nodePort
+  - target:
+      group: argoproj.io
+      version: v1alpha1
+      kind: Rollout
+      name: rollouts-demo-canary
+    patch: |-
+      - op: remove
+        path: /spec/strategy/canary/trafficRouting
