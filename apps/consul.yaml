@@ -13,6 +13,7 @@ spec:
     path: apps/consul/overlays/local
     kustomize:
       enable: true
+      buildOptions: "--enable-helm"
   destination:
     server: https://kubernetes.default.svc
     namespace: consul
