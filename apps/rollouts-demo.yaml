@@ -1,6 +1,18 @@
 # rollouts-demo.yaml — ArgoCD Application for Argo Rollouts canary and blue-green demos.
 # Wave 7: deploys after infrastructure (waves 0-3) and local-ui (wave 6).
 # Demonstrates progressive delivery with Prometheus metrics integration and Istio traffic routing.
+#
+# ╔════════════════════════════════════════════════════════════════╗
+# ║ ENABLE/DISABLE SWITCH                                          ║
+# ║ Set ENABLED to control automatic deployment and pruning       ║
+# ║ ENABLED=true  → auto-deploy and sync                          ║
+# ║ ENABLED=false → no auto-deploy, resources pruned on sync      ║
+# ║                                                                ║
+# ║ Toggle command:                                               ║
+# ║ kubectl patch application rollouts-demo -n argocd --type merge\
+# ║  -p '{"spec":{"syncPolicy":{"automated":{"prune":true,   ║
+# ║  "selfHeal":ENABLED}}}}'                                     ║
+# ╚════════════════════════════════════════════════════════════════╝
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -8,6 +20,8 @@ metadata:
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "7"
+    # Set to 'true' to enable auto-deployment
+    app.enabled: "false"
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
@@ -19,12 +33,13 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: rollouts-demo
-  # Disabled to free resources for Consul
-  # To enable: uncomment syncPolicy and run: kubectl patch application rollouts-demo -n argocd --type merge -p '{"spec":{"syncPolicy":{"automated":{"prune":true,"selfHeal":true}}}}'
   syncPolicy:
-    # automated:
-    #   prune: true
-    #   selfHeal: true
+    automated:
+      # Set both to true to enable auto-deployment and pruning
+      # Set selfHeal to false to disable auto-sync
+      prune: true
+      selfHeal: false  # SWITCH: set to true to enable auto-deployment
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
+      - PruneLast=true  # Delete resources last, after new ones are created

@@ -2,6 +2,18 @@
 # Wave 5: deploys after infrastructure but before demo apps.
 # Runners are auto-registered to punit144/kubernetes-learn repository.
 # GitHub token must be manually created as a secret (not committed to git).
+#
+# ╔════════════════════════════════════════════════════════════════╗
+# ║ ENABLE/DISABLE SWITCH                                          ║
+# ║ Set ENABLED to control automatic deployment and pruning       ║
+# ║ ENABLED=true  → auto-deploy and sync                          ║
+# ║ ENABLED=false → no auto-deploy, resources pruned on sync      ║
+# ║                                                                ║
+# ║ Toggle command:                                               ║
+# ║ kubectl patch application arc-runners -n argocd --type merge \ ║
+# ║  -p '{"spec":{"syncPolicy":{"automated":{"prune":true,   ║
+# ║  "selfHeal":ENABLED}}}}'                                     ║
+# ╚════════════════════════════════════════════════════════════════╝
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -9,6 +21,8 @@ metadata:
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "5"
+    # Set to 'true' to enable auto-deployment
+    app.enabled: "false"
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
