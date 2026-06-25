@@ -7,8 +7,6 @@ namespace: consul-staging
 
 resources:
   - namespace.yaml
-
-bases:
   - ../../base
 
 namePrefix: consul-staging-

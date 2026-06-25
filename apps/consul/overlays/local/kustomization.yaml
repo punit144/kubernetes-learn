@@ -5,10 +5,10 @@ metadata:
 
 namespace: consul
 
-bases:
+resources:
   - ../../base
 
 namePrefix: consul-local-
 
-patchesStrategicMerge:
-  - consul-patch.yaml
+patches:
+  - path: consul-patch.yaml

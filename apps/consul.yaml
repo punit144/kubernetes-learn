@@ -11,6 +11,8 @@ spec:
     repoURL: https://github.com/punit144/kubernetes-learn
     targetRevision: HEAD
     path: apps/consul/overlays/local
+    kustomize:
+      enable: true
   destination:
     server: https://kubernetes.default.svc
     namespace: consul

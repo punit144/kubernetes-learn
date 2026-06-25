@@ -5,7 +5,7 @@ metadata:
 
 namespace: consul
 
-# Helm chart configuration
+# Enable Helm chart support
 helmCharts:
   - name: consul
     repo: https://helm.releases.hashicorp.com

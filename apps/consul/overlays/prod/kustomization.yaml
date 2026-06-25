@@ -7,8 +7,6 @@ namespace: consul-prod
 
 resources:
   - namespace.yaml
-
-bases:
   - ../../base
 
 namePrefix: consul-prod-
