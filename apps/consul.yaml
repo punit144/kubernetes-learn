@@ -33,10 +33,10 @@ spec:
             connect: false
             resources:
               requests:
-                cpu: 100m
-                memory: 128Mi
+                cpu: 50m
+                memory: 64Mi
               limits:
-                cpu: 200m
+                cpu: 100m
                 memory: 128Mi
             disruptionBudget:
               enabled: false
