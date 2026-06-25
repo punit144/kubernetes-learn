@@ -48,10 +48,5 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: github-actions
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
-      - ServerSideApply=true
+  # Disabled to free resources for Consul
+  # To enable: uncomment syncPolicy and run: kubectl patch application arc-runners -n argocd --type merge -p '{\"spec\":{\"syncPolicy\":{\"automated\":{\"prune\":true,\"selfHeal\":true}}}}'\n  syncPolicy:\n    # automated:\n    #   prune: true\n    #   selfHeal: true\n    syncOptions:\n      - CreateNamespace=true\n      - ServerSideApply=true
