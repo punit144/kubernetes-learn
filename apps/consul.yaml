@@ -14,56 +14,26 @@ spec:
     helm:
       releaseName: consul
       values: |
-        consul:
-          backup:
-            Enabled: false
-          global:
-            argocd:
-              enabled: true
+        global:
+          enabled: false
+        server:
+          enabled: true
+          replicas: 1
+          storage: 5Gi
+          connect: false
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 100m
+              memory: 128Mi
+          disruptionBudget:
             enabled: false
-            name: consul
-            datacenter: dev-am01
-            image: "hashicorp/consul:1.18.2"
-            acls:
-              manageSystemACLs: true
-          server:
-            enabled: true
-            replicas: 1
-            storage: 5Gi
-            connect: false
-            resources:
-              requests:
-                cpu: 50m
-                memory: 64Mi
-              limits:
-                cpu: 100m
-                memory: 128Mi
-            disruptionBudget:
-              enabled: false
-          client:
-            enabled: false
-          dns:
-            enabled: false
-          ui:
-            enabled: true
-            service:
-              type: ClusterIP
-          connectInject:
-            enabled: false
-          webhookCertManager:
-            enabled: false
-          controller:
-            enabled: false
-          syncCatalog:
-            enabled: false
-          controlPlane:
-            enabled: false
-          meshGateway:
-            enabled: false
-          ingressGateways:
-            enabled: false
-          terminatingGateways:
-            enabled: false
+        ui:
+          enabled: true
+          service:
+            type: ClusterIP
   destination:
     server: https://kubernetes.default.svc
     namespace: consul
