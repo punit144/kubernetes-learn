@@ -1,4 +1,16 @@
 # rollouts-demo staging environment.
+#
+# ╔══════════════════════════════════════════════════════════════╗
+# ║ ENABLE/DISABLE SWITCH                                      ║
+# ║ Set ENABLED to control automatic deployment and pruning   ║
+# ║ ENABLED=true  → auto-deploy and sync                      ║
+# ║ ENABLED=false → no auto-deploy, resources pruned on sync  ║
+# ║                                                            ║
+# ║ Toggle command:                                           ║
+# ║ kubectl patch application rollouts-demo-staging -n argocd\║
+# ║  -p '{"spec":{"syncPolicy":{"automated":{"prune":true,   ║
+# ║  "selfHeal":ENABLED}}}}'                                  ║
+# ╚══════════════════════════════════════════════════════════════╝
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -6,6 +18,7 @@ metadata:
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "7"
+    app.enabled: "false"
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
@@ -19,8 +32,11 @@ spec:
     namespace: rollouts-demo-staging
   syncPolicy:
     automated:
+      # Set both to true to enable auto-deployment and pruning
+      # Set selfHeal to false to disable auto-sync
       prune: true
-      selfHeal: true
+      selfHeal: false  # SWITCH: set to true to enable auto-deployment
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
+      - PruneLast=true  # Delete resources last, after new ones are created

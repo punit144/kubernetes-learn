@@ -1,26 +1,42 @@
 # rollouts-demo production-like environment.
+#
+# ╔══════════════════════════════════════════════════════════════╗
+# ║ ENABLE/DISABLE SWITCH                                      ║
+# ║ Set ENABLED to control automatic deployment and pruning   ║
+# ║ ENABLED=true  → auto-deploy and sync                      ║
+# ║ ENABLED=false → no auto-deploy, resources pruned on sync  ║
+# ║                                                            ║
+# ║ Toggle command:                                           ║
+# ║ kubectl patch application rollouts-demo-prod -n argocd\   ║
+# ║  -p '{"spec":{"syncPolicy":{"automated":{"prune":true,   ║
+# ║  "selfHeal":ENABLED}}}}'                                  ║
+# ╚══════════════════════════════════════════════════════════════╝
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: rollouts-demo-prod
   namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "7"
-  finalizers:
-    - resources-finalizer.argocd.argoproj.io
-spec:
-  project: default
-  source:
-    repoURL: https://github.com/punit144/kubernetes-learn.git
-    targetRevision: main
+  syncPolicy:
+    automated:
+      # Set both to true to enable auto-deployment and pruning
+      # Set selfHeal to false to disable auto-sync
+      prune: true
+      selfHeal: false  # SWITCH: set to true to enable auto-deployment
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+      - PruneLast=true  # Delete resources last, after new ones are created
     path: apps/rollouts-demo/overlays/prod
   destination:
     server: https://kubernetes.default.svc
     namespace: rollouts-demo-prod
+  # Disabled to free resources for Consul
+  # To enable: uncomment syncPolicy and run: kubectl patch application rollouts-demo-prod -n argocd --type merge -p '{"spec":{"syncPolicy":{"automated":{"prune":true,"selfHeal":true}}}}'
   syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
+    # automated:
+    #   prune: true
+    #   selfHeal: true
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
