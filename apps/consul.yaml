@@ -16,6 +16,8 @@ spec:
       values: |
         global:
           enabled: false
+          name: consul
+          datacenter: dev-am01
         server:
           enabled: true
           replicas: 1
