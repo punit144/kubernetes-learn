@@ -8,12 +8,56 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/punit144/kubernetes-learn
-    targetRevision: HEAD
-    path: apps/consul/overlays/local
-    kustomize:
-      enable: true
-      buildOptions: "--enable-helm"
+    repoURL: https://helm.releases.hashicorp.com
+    chart: consul
+    targetRevision: 1.4.8
+    helm:
+      releaseName: consul
+      values: |
+        consul:
+          backup:
+            Enabled: false
+          global:
+            argocd:
+              enabled: true
+            enabled: false
+            name: consul
+            datacenter: dev-am01
+            image: "hashicorp/consul:1.18.2"
+            acls:
+              manageSystemACLs: true
+          server:
+            enabled: true
+            replicas: 1
+            storage: 5Gi
+            connect: false
+            resources:
+              requests:
+                cpu: 500m
+                memory: 512Mi
+              limits:
+                cpu: 500m
+                memory: 512Mi
+            disruptionBudget:
+              enabled: false
+          client:
+            enabled: false
+          dns:
+            enabled: false
+          ui:
+            enabled: true
+            service:
+              type: ClusterIP
+          connectInject:
+            enabled: false
+          syncCatalog:
+            enabled: false
+          meshGateway:
+            enabled: false
+          ingressGateways:
+            enabled: false
+          terminatingGateways:
+            enabled: false
   destination:
     server: https://kubernetes.default.svc
     namespace: consul
