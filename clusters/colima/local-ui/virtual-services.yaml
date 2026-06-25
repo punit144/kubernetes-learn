@@ -43,7 +43,7 @@ spec:
   http:
   - route:
     - destination:
-        host: consul-consul-ui.consul.svc.cluster.local
+        host: consul-ui.consul.svc.cluster.local
         port:
           number: 80
       weight: 100
