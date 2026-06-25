@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: consul-staging
+
+namespace: consul-staging
+
+resources:
+  - namespace.yaml
+
+bases:
+  - ../../base
+
+namePrefix: consul-staging-
+
+# Staging-specific replicas (higher availability)
+replicas:
+  - name: consul
+    count: 3

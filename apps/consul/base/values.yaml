@@ -1,0 +1,64 @@
+consul:
+  backup:
+    Enabled: false
+
+  global:
+    argocd:
+      enabled: true
+
+    # Keep false so only explicitly enabled Consul components are deployed.
+    enabled: false
+
+    name: consul
+    datacenter: dev-am01
+
+    # Consul server runtime image from use public one
+    image: "hashicorp/consul:1.18.2"
+
+    # Required for /v1/acl/login and k8s-dpe auth flow.
+    # When this is true, ssoEnabled must also be true so bootstrap can create k8s-dpe.
+    acls:
+      manageSystemACLs: true
+
+  server:
+    enabled: true
+    replicas: 1
+    storage: 5Gi
+    connect: false
+
+    resources:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+
+    disruptionBudget:
+      enabled: false
+
+  client:
+    enabled: false
+
+  dns:
+    enabled: false
+
+  ui:
+    enabled: true
+    service:
+      type: ClusterIP
+
+  connectInject:
+    enabled: false
+
+  syncCatalog:
+    enabled: false
+
+  meshGateway:
+    enabled: false
+
+  ingressGateways:
+    enabled: false
+
+  terminatingGateways:
+    enabled: false
