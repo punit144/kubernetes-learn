@@ -25,6 +25,7 @@ spec:
     - "prometheus.localhost"
     - "rollouts-demo-canary.localhost"
     - "rollouts-demo-blue-green.localhost"
+    - "consul.localhost"
   - port:
       number: 80
       name: http
@@ -35,3 +36,4 @@ spec:
     - "prometheus.localhost"
     - "rollouts-demo-canary.localhost"
     - "rollouts-demo-blue-green.localhost"
+    - "consul.localhost"

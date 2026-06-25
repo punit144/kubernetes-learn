@@ -69,6 +69,26 @@ spec:
       weight: 100
     timeout: 30s
 ---
+# VirtualService for Consul UI
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: consul-ui-vs
+  namespace: consul
+spec:
+  hosts:
+  - "consul.localhost"
+  gateways:
+  - istio-system/local-ui-gateway
+  http:
+  - route:
+    - destination:
+        host: consul-consul-ui.consul.svc.cluster.local
+        port:
+          number: 80
+      weight: 100
+    timeout: 30s
+---
 # VirtualService for Rollouts Demo — Canary
 apiVersion: networking.istio.io/v1beta1
 kind: VirtualService
