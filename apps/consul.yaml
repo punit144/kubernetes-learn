@@ -47,6 +47,7 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - Replace=true  # Required: allows ArgoCD to delete+recreate StatefulSets with immutable field changes
     retry:
       limit: 5
       backoff:
